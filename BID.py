@@ -1,5 +1,7 @@
 ## My goal is to create more programs that mirror Olaf Sporns' computations
 ## Main program is called BID for Behavioral InfoDynamics (or is it Behavior?)
+## Jeremy believes in goals
+## Ed believes in beliefs
 
 ## Created by Jeremy Karnowski August 1, 2011
 ## Updated November 10, 2011
