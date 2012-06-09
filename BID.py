@@ -10,7 +10,7 @@
 from scipy import *
 
 def BID_norm(Mdata,lo_limit,hi_limit):
-    '''
+    """
     Normalizes the input data 'Mdata' between the user-specified limits.
 
     INPUT
@@ -20,28 +20,26 @@ def BID_norm(Mdata,lo_limit,hi_limit):
 
     OUTPUT
         Mdata = MxN matrix         normalized output
-    '''
-
-    #I'm still not sure how to throw an error for too few arguments
-    #try:
-    scale = Mdata.max(1) - Mdata.min(1)                            # max and min of each data stream
+    """
+    # Possible error message to include later:
+    # print "Must specify data matrix and both lower and upper limits"
+    scale = Mdata.max(1) - Mdata.min(1)                          # max and min of each data stream
     for i in range(0,Mdata.shape[0]):                            # for each data stream, subtract smallest
         Mdata[i,:] = (Mdata[i,:] - Mdata[i,:].min())/scale[i]    # element and scale appropriately
-    return (lo_limit + Mdata*(hi_limit-lo_limit))
-    #except:
-    #    print "Must specify data matrix and both lower and upper limits"
+    return lo_limit + Mdata*(hi_limit-lo_limit)
+
 
 def BID_discrete(Mdata,nst):
-    '''
+    """
     Discretizes the input data into discrete states
 
     INPUT
         Mdata = MxN matrix
-        nst = number of states         resolution
+        nst = number of states      resolution
 
     OUTPUT
         Mstates = MxN matrix        every row ranges from 0 to nst-1
-    '''
+    """
     M = zeros(Mdata.shape)
     final = zeros(Mdata.shape)
     scale = Mdata.max(1) - Mdata.min(1)                            # max and min of each data stream
@@ -58,11 +56,11 @@ def BID_discrete(Mdata,nst):
 
 
 def BID_jointH(Mdata):
-    '''
+    """
     Computes the joint entropy of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
     consist of only binned data
-    '''
+    """
 
     #Mdata has M data streams, all of which have been broken up into
     #a certain number of bins. In Matlab code, if you have 10 data streams,
@@ -76,23 +74,23 @@ def BID_jointH(Mdata):
 
     #Create dictionary and find length of our time series
     jointH = {}
-
     M = Mdata.shape[0]
-    try:  # to treat Mdata as a an n > 1 dimensional array
-        N = Mdata.shape[1]
+    N = Mdata.shape[1]
+
+    # If M = 1, Mdata is one dimensional. This means just compute entropy.
+    if M==1:
         for x in range(0,N):
             try: # to add one to an already existing dictionary entry
-                jointH[''.join([str(j) for j in int_(Mdata[:,x]).tolist()])] += 1.0
+                jointH[str(int(Mdata[:,x]))] += 1.0
             except: # set the value of the new dictionary entry to 1
-                jointH[''.join([str(j) for j in int_(Mdata[:,x]).tolist()])] = 1.0
-    except: #  Mdata is one dimensional. Simplify indexing of jointH dictionary.
-        #print "Input matrix has only one dimension."
-        N = M
+                jointH[str(int(Mdata[:,x]))] = 1.0
+    # M > 1, so compute joint entropy.
+    else:
         for x in range(0,N):
-            try:
-                jointH[str(int(Mdata[x]))] += 1.0
-            except:
-                jointH[str(int(Mdata[x]))] = 1.0
+            try: # to add one to an already existing dictionary entry
+                jointH[tuple(int_(Mdata[:,x]).tolist())] += 1.0
+            except: # set the value of the new dictionary entry to 1
+                jointH[tuple(int_(Mdata[:,x]).tolist())] = 1.0
 
     #Divide each entry by number of samples to normalize probabilities
     for key in jointH:
