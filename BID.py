@@ -100,7 +100,7 @@ def BID_jointH(Mdata):
     #Create new dictionary with p(x)*log(p(x))
     jointH_final = {}
     for key in jointH:
-        jointH_final[key] = jointH[key]*log(jointH[key])
+        jointH_final[key] = jointH[key]*log2(jointH[key])
 
     #Compute entropy by summing them up
     jointH_final_sum = -sum(jointH_final.values())
@@ -125,11 +125,11 @@ def BID_MI(Mdata):
 ##    prevented the BID_jointH function from finding the data.
 
 def BID_integration(Mdata):
-    '''
+    """
     Computes the integration of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
     consist of only binned data
-    '''
+    """
     M = Mdata.shape[0]
     N = Mdata.shape[1]
     #return sum([BID_jointH(Mdata[i,:].reshape(1,N)) for i in range(0,M)]) - BID_jointH(Mdata)
