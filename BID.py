@@ -4,8 +4,9 @@
 ## Ed believes in beliefs
 
 ## Created by Jeremy Karnowski August 1, 2011
-## Updated November 10, 2011
-## This version updated by Edwin Hutchins December 31, 2011
+## Updated by Jeremy Karnowski November 10, 2011
+## Updated by Edwin Hutchins December 31, 2011
+## Current version by Jeremy Karnowski June 9, 2012
 
 from scipy import *
 
@@ -106,17 +107,18 @@ def BID_jointH(Mdata):
 
     return jointH_final_sum
 
-##      The following function in Jeremy's code called BID_joint(..), which threw an error.  I replaced
-##      BID_joint with BID_jointH. I also changed the Mdata row indices to 0 and 1 instead of 1 and 2.
-##      EH 12/31/2011
 
 def BID_MI(Mdata):
-    '''
+    """
     Computes the mutual information of M=2 data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
     consist of only binned data
-    '''
-    return BID_jointH(Mdata[0,:]) + BID_jointH(Mdata[1,:]) - BID_jointH(Mdata)
+    """
+    if Mdata.shape[0] == 2:
+        N = Mdata.shape[1]
+        Mdata0 = Mdata[0,:].reshape(1,N)
+        Mdata1 = Mdata[1,:].reshape(1,N)
+        return BID_jointH(Mdata0) + BID_jointH(Mdata1) - BID_jointH(Mdata)
 
 ##    The following function in Jeremy's code included a reshape method, Mdata[i,:].reshape(1,N).
 ##    This had the effect of embedding the Mdata[i,:] vector as the only row in an array. This
