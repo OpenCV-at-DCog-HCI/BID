@@ -151,12 +151,14 @@ def BID_integration(Mdata,nst):
     return sum([BID_jointH(Mdata[i,:].reshape(1,N),nst)[1] for i in range(0,M)]) - BID_jointH(Mdata,nst)[1]
     #return sum([BID_jointH(Mdata[i,:]) for i in range(0,M)]) - BID_jointH(Mdata)  # an old fix from Ed
 
-def BID_complexity(Mdata):
+def BID_complexity(Mdata,nst):
     """
     Computes the complexity of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
     consist of only binned data
     """
+    # The below uses a shortcut based on the definition of joint entropy
+    # H(Y|X) = H(X,Y) - H(X)
     M = Mdata.shape[0]
     N = Mdata.shape[1]
-    return sum([BID_jointH(vstack((Mdata[:i],Mdata[i+1:]))) for i in range(0,M)]) - (M-1)*BID_jointH(Mdata)
+    return sum([BID_jointH(vstack((Mdata[:i],Mdata[i+1:])),nst)[1] for i in range(0,M)]) - (M-1)*BID_jointH(Mdata,nst)[1]
