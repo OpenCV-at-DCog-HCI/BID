@@ -151,6 +151,7 @@ def BID_integration(Mdata,nst):
     return sum([BID_jointH(Mdata[i,:].reshape(1,N),nst)[1] for i in range(0,M)]) - BID_jointH(Mdata,nst)[1]
     #return sum([BID_jointH(Mdata[i,:]) for i in range(0,M)]) - BID_jointH(Mdata)  # an old fix from Ed
 
+
 def BID_complexity(Mdata,nst):
     """
     Computes the complexity of M data streams of length N.
@@ -160,5 +161,52 @@ def BID_complexity(Mdata,nst):
     # The below uses a shortcut based on the definition of joint entropy
     # H(Y|X) = H(X,Y) - H(X)
     M = Mdata.shape[0]
-    N = Mdata.shape[1]
     return sum([BID_jointH(vstack((Mdata[:i],Mdata[i+1:])),nst)[1] for i in range(0,M)]) - (M-1)*BID_jointH(Mdata,nst)[1]
+
+
+def BID_complexityN(Mdata,nst):
+    """
+    Computes the N complexity of M data streams of length N.
+    Data must be a numpy matrix with M rows and N columns and must
+    consist of only binned data
+    """
+    def subsetIndices(totalList,k,setList):
+        """
+        Returns all possible subsets of size k from a set of size n (length of totalList)
+        """
+        if k == 0:
+            return [setList]
+        else:
+            alist = []
+            for i in range(0,size(totalList)-k+1):
+                tmp = subsetIndices(totalList[i+1:],k-1,setList+[totalList[i]])
+                alist = alist + tmp
+            return alist
+
+    def otherIndices(indicesList,totalNum):
+        """
+        Returns all possible opposite subsets given a list of possible subsets
+        """
+        fullList = range(0,totalNum)
+        otherInds = []
+        for inds in indicesList:
+            tmpList = list(copy(fullList))
+            for x in inds:
+                tmpList.remove(x)
+            otherInds.append(tmpList)
+        return otherInds
+
+    M = Mdata.shape[0]
+
+    if M < 2:
+        print "Complexity requires 2 or more data streams."
+    else:
+        maxSetSize = M/2
+        levelSums = []
+        for i in range(1,maxSetSize+1):
+            #mutualinfos = []
+            indices = subsetIndices(range(0,M),i,[])
+            oppindices = otherIndices(indices,M)
+            avgMI = (1.0/shape(indices)[0])*sum([BID_jointH(Mdata[Xj],nst)[1] + BID_jointH(Mdata[XXj],nst)[1] - BID_jointH(Mdata,nst)[1] for Xj,XXj in zip(indices,oppindices)])
+            levelSums.append(avgMI)
+        return sum(levelSums), levelSums
