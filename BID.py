@@ -206,7 +206,6 @@ def BID_complexityN(Mdata,nst):
         maxSetSize = M/2
         levelSums = []
         for i in range(1,maxSetSize+1):
-            #mutualinfos = []
             indices = subsetIndices(range(0,M),i,[])
             oppindices = otherIndices(indices,M)
             avgMI = (1.0/shape(indices)[0])*sum([BID_jointH(Mdata[Xj],nst)[1] + BID_jointH(Mdata[XXj],nst)[1] - BID_jointH(Mdata,nst)[1] for Xj,XXj in zip(indices,oppindices)])
