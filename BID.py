@@ -56,7 +56,7 @@ def BID_discrete(Mdata,nst):
     return final
 
 
-def BID_jointH(Mdata):
+def BID_jointH(Mdata,nst):
     """
     Computes the joint entropy of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
@@ -78,6 +78,9 @@ def BID_jointH(Mdata):
     M = Mdata.shape[0]
     N = Mdata.shape[1]
 
+    if N < 3*(nst**M):
+        print "Warning: Number of samples < 3*number of states. Potentially not meaningful estimate!"
+
     # If M = 1, Mdata is one dimensional. This means just compute entropy.
     if M==1:
         for x in range(0,N):
@@ -93,19 +96,29 @@ def BID_jointH(Mdata):
             except: # set the value of the new dictionary entry to 1
                 jointH[tuple(int_(Mdata[:,x]).tolist())] = 1.0
 
-    #Divide each entry by number of samples to normalize probabilities
+    # Divide each entry by number of samples to normalize probabilities
     for key in jointH:
         jointH[key] /= N
 
-    #Create new dictionary with p(x)*log(p(x))
+    # Create new dictionary with p(x)*log(p(x))
     jointH_final = {}
     for key in jointH:
         jointH_final[key] = jointH[key]*log2(jointH[key])
 
-    #Compute entropy by summing them up
-    jointH_final_sum = -sum(jointH_final.values())
+    # Compute entropy by summing them up
+    jointH_obs = -sum(jointH_final.values())
 
-    return jointH_final_sum
+    # Compute H_inf based on Roulston (1999)
+    B_star = size(jointH_final.values())
+    jointH_inf = jointH_obs + (B_star - 1)/(2*N)
+
+    # Compute standard deviation of entropy based on Roulston (1999)
+    jointSigma_Htemp = {}
+    for key in jointH:
+        jointSigma_Htemp[key] = ((log2(jointH[key]) + jointH_obs)**2)*jointH[key]*(1-jointH[key])
+    jointSigma_H = sqrt(sum(jointSigma_Htemp.values())/N)
+
+    return jointH_obs, jointH_inf, jointSigma_H
 
 
 def BID_MI(Mdata):
