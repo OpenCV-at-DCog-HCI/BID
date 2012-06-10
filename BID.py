@@ -121,7 +121,7 @@ def BID_jointH(Mdata,nst):
     return jointH_obs, jointH_inf, jointSigma_H
 
 
-def BID_MI(Mdata):
+def BID_MI(Mdata,nst):
     """
     Computes the mutual information of M=2 data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
@@ -131,7 +131,7 @@ def BID_MI(Mdata):
         N = Mdata.shape[1]
         Mdata0 = Mdata[0,:].reshape(1,N)
         Mdata1 = Mdata[1,:].reshape(1,N)
-        return BID_jointH(Mdata0) + BID_jointH(Mdata1) - BID_jointH(Mdata)
+        return BID_jointH(Mdata0,nst)[1] + BID_jointH(Mdata1,nst)[1] - BID_jointH(Mdata,nst)[1]
 
 ##    The following function in Jeremy's code included a reshape method, Mdata[i,:].reshape(1,N).
 ##    This had the effect of embedding the Mdata[i,:] vector as the only row in an array. This
