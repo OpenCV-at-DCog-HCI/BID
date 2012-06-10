@@ -133,11 +133,8 @@ def BID_MI(Mdata,nst):
         Mdata1 = Mdata[1,:].reshape(1,N)
         return BID_jointH(Mdata0,nst)[1] + BID_jointH(Mdata1,nst)[1] - BID_jointH(Mdata,nst)[1]
 
-##    The following function in Jeremy's code included a reshape method, Mdata[i,:].reshape(1,N).
-##    This had the effect of embedding the Mdata[i,:] vector as the only row in an array. This
-##    prevented the BID_jointH function from finding the data.
 
-def BID_integration(Mdata):
+def BID_integration(Mdata,nst):
     """
     Computes the integration of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
@@ -145,15 +142,15 @@ def BID_integration(Mdata):
     """
     M = Mdata.shape[0]
     N = Mdata.shape[1]
-    #return sum([BID_jointH(Mdata[i,:].reshape(1,N)) for i in range(0,M)]) - BID_jointH(Mdata)
-    return sum([BID_jointH(Mdata[i,:]) for i in range(0,M)]) - BID_jointH(Mdata)
+    return sum([BID_jointH(Mdata[i,:].reshape(1,N),nst)[1] for i in range(0,M)]) - BID_jointH(Mdata,nst)[1]
+    #return sum([BID_jointH(Mdata[i,:]) for i in range(0,M)]) - BID_jointH(Mdata)  # an old fix from Ed
 
 def BID_complexity(Mdata):
-    '''
+    """
     Computes the complexity of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
     consist of only binned data
-    '''
+    """
     M = Mdata.shape[0]
     N = Mdata.shape[1]
     return sum([BID_jointH(vstack((Mdata[:i],Mdata[i+1:]))) for i in range(0,M)]) - (M-1)*BID_jointH(Mdata)
