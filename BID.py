@@ -169,6 +169,8 @@ def BID_complexityN(Mdata,nst):
     Computes the N complexity of M data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
     consist of only binned data
+
+    Returns the overall complexity and a list of the complexity given different subset sizes
     """
     def subsetIndices(totalList,k,setList):
         """
