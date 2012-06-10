@@ -73,6 +73,12 @@ def BID_jointH(Mdata,nst):
     #Each key is multidimensional matrix index and each value is the count
     #of how many times that configuration has occurred in our M-dim data.
 
+    #To fix data vectors not properly formatted
+    try:
+        N = Mdata.shape[1]
+    except:
+        Mdata = Mdata.reshape(1,Mdata.shape[0])
+
     #Create dictionary and find length of our time series
     jointH = {}
     M = Mdata.shape[0]
