@@ -43,8 +43,8 @@ def BID_discrete(Mdata,nst):
     """
     M = zeros(Mdata.shape)
     final = zeros(Mdata.shape)
-    scale = Mdata.max(1) - Mdata.min(1)                            # max and min of each data stream
-    for i in range(0,Mdata.shape[0]):                            # for each data stream, subtract smallest
+    scale = 1.0*(Mdata.max(1) - Mdata.min(1))                # max and min of each data stream
+    for i in range(0,Mdata.shape[0]):                        # for each data stream, subtract smallest
         M[i,:] = (Mdata[i,:] - Mdata[i,:].min())/scale[i]    # element and scale appropriately
 
     bins = arange(0.0,1.0,1.0/nst)
@@ -127,16 +127,24 @@ def BID_jointH(Mdata,nst):
     return jointH_obs, jointH_inf, jointSigma_H
 
 
-def BID_MI(Mdata,nst):
+def BID_MI(Mdata,nst,timeOffset=0):
     """
     Computes the mutual information of M=2 data streams of length N.
     Data must be a numpy matrix with M rows and N columns and must
-    consist of only binned data
+    consist of only binned data. If timeOffset is given, will shift
+    the second data stream accordingly.
     """
     if Mdata.shape[0] == 2:
         N = Mdata.shape[1]
-        Mdata0 = Mdata[0,:].reshape(1,N)
-        Mdata1 = Mdata[1,:].reshape(1,N)
+        if timeOffset < 0:
+            Mdata0 = Mdata[0,:+timeOffset].reshape(1,N+timeOffset)
+            Mdata1 = Mdata[1,-timeOffset:].reshape(1,N+timeOffset)
+        elif timeOffset > 0:
+            Mdata0 = Mdata[0,timeOffset:].reshape(1,N-timeOffset)
+            Mdata1 = Mdata[1,:-timeOffset].reshape(1,N-timeOffset)
+        else:
+            Mdata0 = Mdata[0,:].reshape(1,N)
+            Mdata1 = Mdata[1,::].reshape(1,N)
         return BID_jointH(Mdata0,nst)[1] + BID_jointH(Mdata1,nst)[1] - BID_jointH(Mdata,nst)[1]
 
 
